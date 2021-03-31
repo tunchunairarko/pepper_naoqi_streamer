@@ -11,10 +11,7 @@ class PepperRobot:
         self.memoryProxy=None
         self.motion_service=None
         self.dcm_service=None
-        self.motion_service=self.session.service("ALMotion")
-        self.theta0 = self.motion_service.getRobotPosition(False)[2]
-        data = []
-        speed = 0.5
+        self.theta0=0
 
     def connect(self):
         try:
@@ -23,7 +20,9 @@ class PepperRobot:
             self.motion_service.setExternalCollisionProtectionEnabled("All", True) #safety for collision
         except Exception as e:
             print(e)
-        
+    def start_motion_service(self):
+        self.motion_service=self.session.service("ALMotion")
+        self.theta0 = self.motion_service.getRobotPosition(False)[2]    
     def start_sensor_service(self,serviceName=""):
         if not(self.session.isConnected()):
             return "Connection error"
@@ -41,19 +40,20 @@ class PepperRobot:
             # self.dcm_service=self.session.service("DCM") #DCM (Device Communication Manager)
             return "Success"
         except Exception as e:
+            print("line 43")
             return e
 
     def get_laser_data(self):
-        if self.memoryProxy.getData("MONITOR_RUN")>0:
-            theta = self.motion_service.getRobotPosition(False)[2] -self.theta0 + 1.57
-            for i in range(0,15):
-                if i+1<10:
-                    stringIndex = "0" + str(i+1)
-                else:
-                    stringIndex = str(i+1)
+        # if self.memoryProxy.getData("MONITOR_RUN")>0:
+        theta = self.motion_service.getRobotPosition(False)[2] -self.theta0 + 1.57
+        for i in range(0,15):
+            if i+1<10:
+                stringIndex = "0" + str(i+1)
+            else:
+                stringIndex = str(i+1)
 
-                y_value = self.memoryProxy.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg"+stringIndex+"/X/Sensor/Value")# - 0.0562
-                x_value = -self.memoryProxy.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg"+stringIndex+"/Y/Sensor/Value")
+            y_value = self.memoryProxy.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg"+stringIndex+"/X/Sensor/Value")# - 0.0562
+            x_value = -self.memoryProxy.getData("Device/SubDeviceList/Platform/LaserSensor/Front/Horizontal/Seg"+stringIndex+"/Y/Sensor/Value")
 
-                return {'theta':theta+(0.523599-i*0.0698132),'distance':math.sqrt(x_value*x_value + y_value*y_value)}
-                data.append((theta+(0.523599-i*0.0698132),math.sqrt(x_value*x_value + y_value*y_value))) 
+            return {'theta':theta+(0.523599-i*0.0698132),'distance':math.sqrt(x_value*x_value + y_value*y_value)}
+        

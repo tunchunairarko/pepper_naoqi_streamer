@@ -27,7 +27,7 @@ def main():
     ws.connect_client()
     data={
         "key":"900",
-        "value":"er43"
+        "value":{"gondor":"true"}
     }
     
     ws.send_data(data)
