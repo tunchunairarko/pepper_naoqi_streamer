@@ -1,5 +1,4 @@
 import time
-import edgeiq
 import argparse
 import socketio
 import cv2
@@ -36,7 +35,7 @@ def disconnect():
 class CVClient(object):
     def __init__(self, server_addr, stream_fps):
         self.server_addr = server_addr
-        self.server_port = 5001
+        self.server_port = 80
         self._stream_fps = stream_fps
         self._last_update_t = time.time()
         self._wait_t = (1/self._stream_fps)
@@ -45,7 +44,7 @@ class CVClient(object):
         print('[INFO] Connecting to server http://{}:{}...'.format(
             self.server_addr, self.server_port))
         sio.connect(
-                'http://{}:{}'.format(self.server_addr, self.server_port),
+                'http://{}'.format(self.server_addr),
                 transports=['websocket'],
                 namespaces=['/cv'])
         time.sleep(1)
@@ -63,8 +62,7 @@ class CVClient(object):
         cur_t = time.time()
         if cur_t - self._last_update_t > self._wait_t:
             self._last_update_t = cur_t
-            frame = edgeiq.resize(
-                    frame, width=640, height=480, keep_scale=True)
+            
             sio.emit(
                     'cv2server',
                     {
@@ -79,7 +77,7 @@ class CVClient(object):
 
 
 def main(server_addr, stream_fps):
-
+    streamer=None
     try:
         streamer = CVClient(server_addr, stream_fps).setup()
 
@@ -99,4 +97,5 @@ def main(server_addr, stream_fps):
 
 
 if __name__ == "__main__":
-    main("robotstreamserver.isensetune.com", 30)
+    # main("robotstreamserver.isensetune.com", 30)
+    main("127.0.0.1:7000", 24)

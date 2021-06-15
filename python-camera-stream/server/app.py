@@ -40,5 +40,5 @@ def handle_cv_message(message):
 
 
 if __name__ == "__main__":
-    print('[INFO] Starting server at http://localhost:5001')
+    print('[INFO] Starting server at http://localhost:7000')
     socketio.run(app=app, host=os.getenv("HOST"), port=os.getenv("PORT"))
